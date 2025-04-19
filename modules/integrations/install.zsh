@@ -10,7 +10,6 @@ if ! check_dir_exists "$INTEGRATIONS_PATH"; then
 fi
 
 # Устанавливаем fzf
-echo "Проверяем/устанавливаем fzf..."
 if ! command -v fzf &> /dev/null; then
     # Проверяем существование директории fzf
     if [[ ! -d "${INTEGRATIONS_PATH}/fzf" ]]; then
@@ -36,13 +35,9 @@ fi
 if command -v fzf &> /dev/null; then
     # Устанавливаем zoxide если его нет
     if ! command -v zoxide &> /dev/null; then
-        echo "Устанавливаем zoxide..."
         curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
     fi
-else
-    echo "ВНИМАНИЕ: fzf не установлен или не доступен в PATH. Пропускаем установку zoxide."
 fi
 
 # Очищаем все .git директории в dist
-echo "Очищаем .git директории..."
 find "${YAKUAKE_LIBS_PATH}/dist" -name ".git" -type d -exec rm -rf {} + 
