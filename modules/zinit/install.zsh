@@ -3,7 +3,17 @@
 # Путь установки zinit в соответствии с XDG Base Directory
 ZINIT_HOME="${YAKUAKE_LIBS_PATH}/dist/zinit/zinit.git"
 
-# Определяем базовые настройки zinit до установки
+# Создаем директорию если она не существует
+ensure_dist_exists
+mkdir -p "$(dirname $ZINIT_HOME)"
+
+# Клонируем репозиторий если его нет
+if [[ ! -d "$ZINIT_HOME/.git" ]]; then
+    echo "Устанавливаем zinit..."
+    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+# Определяем базовые настройки zinit
 declare -A ZINIT
 ZINIT[BIN_DIR]="${ZINIT_HOME}"
 ZINIT[HOME_DIR]="${YAKUAKE_LIBS_PATH}/dist/zinit"
@@ -12,50 +22,18 @@ ZINIT[COMPLETIONS_DIR]="${ZINIT[HOME_DIR]}/completions"
 ZINIT[SNIPPETS_DIR]="${ZINIT[HOME_DIR]}/snippets"
 ZINIT[ZCOMPDUMP_PATH]="${ZINIT[HOME_DIR]}/.zcompdump"
 
-# Проверяем, установлен ли уже zinit
-if [[ ! -f "${ZINIT_HOME}/zinit.zsh" ]]; then
-    echo "Устанавливаем zinit..."
-    
-    # Создаем директорию dist если она не существует
-    ensure_dist_exists
-    
-    # Создаем родительскую директорию для zinit
-    mkdir -p "$(dirname $ZINIT_HOME)"
-    
-    # Удаляем директорию если она существует
-    [[ -d "$ZINIT_HOME" ]] && rm -rf "$ZINIT_HOME"
-    
-    # Клонируем репозиторий
-    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-    
-    # Проверяем успешность установки
-    if [[ -f "${ZINIT_HOME}/zinit.zsh" ]]; then
-        # Создаем необходимые директории
-        mkdir -p "${ZINIT[PLUGINS_DIR]}" "${ZINIT[COMPLETIONS_DIR]}" "${ZINIT[SNIPPETS_DIR]}"
-        
-        # Удаляем .git директорию только после успешной установки
-        rm -rf "${ZINIT_HOME}/.git"
-        echo "zinit установлен успешно!"
-    else
-        echo "Ошибка установки zinit!"
-        return 1
-    fi
-fi
+# Создаем необходимые директории
+mkdir -p "${ZINIT[PLUGINS_DIR]}" "${ZINIT[COMPLETIONS_DIR]}" "${ZINIT[SNIPPETS_DIR]}"
 
 # Подключаем zinit
 if [[ -f "${ZINIT_HOME}/zinit.zsh" ]]; then
-    # Определяем функцию zinit
-    function zinit() {
-        source "${ZINIT_HOME}/zinit.zsh"
-        unfunction zinit
-        zinit "$@"
-    }
+    source "${ZINIT_HOME}/zinit.zsh"
     
-    # Базовая инициализация
-    autoload -Uz compinit
-    compinit
+    # Инициализация автодополнения
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
     
-    # Первый вызов zinit для инициализации
+    # Устанавливаем базовые плагины
     zinit light zdharma-continuum/zinit-annex-bin-gem-node
     zinit light zdharma-continuum/zinit-annex-patch-dl
     zinit light zdharma-continuum/zinit-annex-rust
