@@ -9,25 +9,28 @@ if ! check_dir_exists "$INTEGRATIONS_PATH"; then
     mkdir -p "$INTEGRATIONS_PATH"
 fi
 
-# Устанавливаем fzf
+# Добавляем fzf в PATH если директория существует
+if [[ -d "${INTEGRATIONS_PATH}/fzf/bin" ]]; then
+    export PATH="${INTEGRATIONS_PATH}/fzf/bin:$PATH"
+fi
+
+# Устанавливаем fzf только если его нет в системе
 if ! command -v fzf &> /dev/null; then
     # Проверяем существование директории fzf
     if [[ ! -d "${INTEGRATIONS_PATH}/fzf" ]]; then
-        git clone --depth 1 --quiet https://github.com/junegunn/fzf.git "${INTEGRATIONS_PATH}/fzf"
+        git clone --depth 1 https://github.com/junegunn/fzf.git "${INTEGRATIONS_PATH}/fzf"
     elif [[ -d "${INTEGRATIONS_PATH}/fzf/.git" ]]; then
         # Если директория существует и это git репозиторий, обновляем
-        cd "${INTEGRATIONS_PATH}/fzf" && git pull --quiet
+        cd "${INTEGRATIONS_PATH}/fzf" && git pull
     fi
     
     # Устанавливаем/обновляем бинарный файл
-    "${INTEGRATIONS_PATH}/fzf/install" --bin --quiet
+    "${INTEGRATIONS_PATH}/fzf/install" --bin
     
     # Удаляем .git директорию
     rm -rf "${INTEGRATIONS_PATH}/fzf/.git"
-fi
-
-# Добавляем fzf в PATH если его там нет
-if [[ ! -d "${INTEGRATIONS_PATH}/fzf/bin" ]]; then
+    
+    # Добавляем в PATH после установки
     export PATH="${INTEGRATIONS_PATH}/fzf/bin:$PATH"
 fi
 
