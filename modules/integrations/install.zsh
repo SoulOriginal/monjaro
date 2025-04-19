@@ -13,14 +13,14 @@ fi
 if ! command -v fzf &> /dev/null; then
     # Проверяем существование директории fzf
     if [[ ! -d "${INTEGRATIONS_PATH}/fzf" ]]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git "${INTEGRATIONS_PATH}/fzf"
+        git clone --depth 1 --quiet https://github.com/junegunn/fzf.git "${INTEGRATIONS_PATH}/fzf"
     elif [[ -d "${INTEGRATIONS_PATH}/fzf/.git" ]]; then
         # Если директория существует и это git репозиторий, обновляем
-        cd "${INTEGRATIONS_PATH}/fzf" && git pull
+        cd "${INTEGRATIONS_PATH}/fzf" && git pull --quiet
     fi
     
     # Устанавливаем/обновляем бинарный файл
-    "${INTEGRATIONS_PATH}/fzf/install" --bin
+    "${INTEGRATIONS_PATH}/fzf/install" --bin --quiet
     
     # Удаляем .git директорию
     rm -rf "${INTEGRATIONS_PATH}/fzf/.git"
