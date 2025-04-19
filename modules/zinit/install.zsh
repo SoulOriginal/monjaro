@@ -44,21 +44,21 @@ fi
 
 # Подключаем zinit
 if [[ -f "${ZINIT_HOME}/zinit.zsh" ]]; then
-    source "${ZINIT_HOME}/zinit.zsh"
+    # Определяем функцию zinit
+    function zinit() {
+        source "${ZINIT_HOME}/zinit.zsh"
+        unfunction zinit
+        zinit "$@"
+    }
     
     # Базовая инициализация
     autoload -Uz compinit
     compinit
     
-    # Устанавливаем базовые аннексы
-    if (( $+commands[zinit] )); then
-        zinit light zdharma-continuum/zinit-annex-bin-gem-node
-        zinit light zdharma-continuum/zinit-annex-patch-dl
-        zinit light zdharma-continuum/zinit-annex-rust
-    else
-        echo "Ошибка: команда zinit недоступна!"
-        return 1
-    fi
+    # Первый вызов zinit для инициализации
+    zinit light zdharma-continuum/zinit-annex-bin-gem-node
+    zinit light zdharma-continuum/zinit-annex-patch-dl
+    zinit light zdharma-continuum/zinit-annex-rust
 else
     echo "Ошибка: файл zinit.zsh не найден!"
     return 1
