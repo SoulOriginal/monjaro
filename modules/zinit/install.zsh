@@ -7,10 +7,19 @@ ZINIT_HOME="${YAKUAKE_LIBS_PATH}/dist/zinit/zinit.git"
 ensure_dist_exists
 mkdir -p "$(dirname $ZINIT_HOME)"
 
+# Проверяем существующую установку
+if [[ -d "$ZINIT_HOME" && ! -d "$ZINIT_HOME/.git" ]]; then
+    echo "Найдена поврежденная установка zinit, удаляем..."
+    rm -rf "$ZINIT_HOME"
+fi
+
 # Клонируем репозиторий если его нет
 if [[ ! -d "$ZINIT_HOME/.git" ]]; then
     echo "Устанавливаем zinit..."
     git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+elif [[ -d "$ZINIT_HOME/.git" ]]; then
+    echo "Обновляем существующую установку zinit..."
+    (cd "$ZINIT_HOME" && git pull origin master)
 fi
 
 # Определяем базовые настройки zinit
